@@ -1,5 +1,14 @@
 .idea/
 
+# Vim
+*.swo
+*.swp
+
+# numpy
+*.np
+*.np_IRL
+*.npy
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

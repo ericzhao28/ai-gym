@@ -86,6 +86,8 @@ def simulate():
                 print("Episode %d finished after %f time steps with total reward = %f (streak %d)."
                       % (episode, t, total_reward, num_streaks))
 
+                if SAVE_FILE:
+                    q_table.dump(SAVE_FILE)
                 if t <= SOLVED_T:
                     num_streaks += 1
                 else:
@@ -167,25 +169,39 @@ if __name__ == "__main__":
     '''
     Defining the simulation related constants
     '''
-    NUM_EPISODES = 50000
+    NUM_EPISODES = 10
     MAX_T = np.prod(MAZE_SIZE, dtype=int) * 100
-    STREAK_TO_END = 100
+    STREAK_TO_END = 10
     SOLVED_T = np.prod(MAZE_SIZE, dtype=int)
     DEBUG_MODE = 0
     RENDER_MAZE = True
     ENABLE_RECORDING = True
+    
+    SAVE_FILE = "./temp.np"
+    LOAD_FILE = None
 
     '''
     Creating a Q-Table for each state-action pair
     '''
-    q_table = np.zeros(NUM_BUCKETS + (NUM_ACTIONS,), dtype=float)
+    if LOAD_FILE:
+        q_table = np.load(LOAD_FILE)
+    else:
+        q_table = np.zeros(NUM_BUCKETS + (NUM_ACTIONS,), dtype=np.float32)
 
     '''
     Begin simulation
     '''
     recording_folder = "/tmp/maze_q_learning"
-
     if ENABLE_RECORDING:
         env = Monitor(env, recording_folder, force=True)
+    simulate()
+
+    '''
+    Begin IRL
+    '''
+    NUM_EPISODES = 1000
+    LOAD_FILE = LOAD_FILE + "_IRL" if LOAD_FILE else None
+    SAVE_FILE = SAVE_FILE + "_IRL" if SAVE_FILE else None
+    env.unwrapped.real_life()
 
     simulate()
