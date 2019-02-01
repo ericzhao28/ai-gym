@@ -4,6 +4,7 @@ import math
 import random
 
 import gym
+from gym.wrappers import Monitor
 import gym_maze
 
 
@@ -74,8 +75,12 @@ def simulate():
             if RENDER_MAZE:
                 env.render()
 
-            if env.is_game_over():
-                sys.exit()
+            try:
+              if env.is_game_over():
+                  sys.exit()
+            except AttributeError:
+              if env.unwrapped.is_game_over():
+                  sys.exit()
 
             if done:
                 print("Episode %d finished after %f time steps with total reward = %f (streak %d)."
@@ -181,9 +186,6 @@ if __name__ == "__main__":
     recording_folder = "/tmp/maze_q_learning"
 
     if ENABLE_RECORDING:
-        env.monitor.start(recording_folder, force=True)
+        env = Monitor(env, recording_folder, force=True)
 
     simulate()
-
-    if ENABLE_RECORDING:
-        env.monitor.close()
