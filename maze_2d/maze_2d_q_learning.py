@@ -145,7 +145,7 @@ def state_to_bucket(state):
 if __name__ == "__main__":
 
     # Initialize the "maze" environment
-    env = gym.make("maze-random-10x10-plus-v0")
+    env = gym.make("maze-random-10x10-plus-v0", num_portals=0)
 
     '''
     Defining the environment related constants
@@ -169,9 +169,9 @@ if __name__ == "__main__":
     '''
     Defining the simulation related constants
     '''
-    NUM_EPISODES = 10
+    NUM_EPISODES = 50000
     MAX_T = np.prod(MAZE_SIZE, dtype=int) * 100
-    STREAK_TO_END = 10
+    STREAK_TO_END = 100
     SOLVED_T = np.prod(MAZE_SIZE, dtype=int)
     DEBUG_MODE = 0
     RENDER_MAZE = True
@@ -199,7 +199,6 @@ if __name__ == "__main__":
     '''
     Begin IRL
     '''
-    NUM_EPISODES = 1000
     LOAD_FILE = LOAD_FILE + "_IRL" if LOAD_FILE else None
     SAVE_FILE = SAVE_FILE + "_IRL" if SAVE_FILE else None
     env.unwrapped.real_life()
