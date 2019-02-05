@@ -18,7 +18,7 @@ POSSIBLE_POSITIONS = None
 Learning related constants
 '''
 DISCOUNT_FACTOR = 0.99
-MIN_EXPLORE_RATE = 0.001
+MIN_EXPLORE_RATE = 0.01
 MIN_LEARNING_RATE = 0.2
 DECAY_FACTOR = None
 
@@ -34,9 +34,9 @@ SOLVED_T = None
 For visualization and debugging
 '''
 VERBOSE = False
-DEBUG_MODE = 0
 RENDER_MAZE = False
 ENABLE_RECORDING = False
+RECORD_STATS = False
 
 
 def set_environment(env):
@@ -54,8 +54,8 @@ def set_environment(env):
     # Bounds for each discrete state
     STATE_BOUNDS = list(zip(env.observation_space.low, env.observation_space.high))
 
-    DECAY_FACTOR = np.prod(MAZE_SIZE, dtype=float) / 10.0
+    DECAY_FACTOR = np.prod(MAZE_SIZE, dtype=float)
 
-    MAX_T = np.prod(MAZE_SIZE, dtype=int) * 100
+    MAX_T = np.prod(MAZE_SIZE, dtype=int) * 10
     SOLVED_T = np.prod(MAZE_SIZE, dtype=int)
 

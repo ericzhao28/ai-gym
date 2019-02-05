@@ -8,6 +8,7 @@ from .evaluate import evaluate
 from . import config
 from .agent import ClassicQAgent, ClassicDaggerAgent
 import numpy as np
+from .stats import plot_scores
 
 
 # Set environment
@@ -26,11 +27,6 @@ sim_learn = ClassicQAgent()
 real_learn = ClassicQAgent()
 real_dagger = ClassicDaggerAgent()
 
-# Begin recording
-recording_folder = "/tmp/maze_q_learning"
-if config.ENABLE_RECORDING:
-    env = Monitor(env, recording_folder, force=True)
-
 # Set high streak req for experts
 config.STREAK_TO_END = 2000
 
@@ -44,15 +40,32 @@ real_env.unwrapped.real_life()
 q_train(real_env, real_expert)
 real_expert.save("real_expert")
 
-# Train dagger
-config.VERBOSE = True
-# config.STREAK_TO_END = 100
-# dagger_train(real_env, real_expert, real_dagger, real_expert)
-# config.STREAK_TO_END = 100
-# dagger_train(real_env, real_dagger, real_dagger, real_expert)
-# evaluate(real_env, real_dagger)
+# Begin recording
+config.RECORD_STATS = True
+# config.ENABLE_RECORDING = True
+# config.VERBOSE = True
+# config.RENDER_MAZE = True
+recording_folder = "/tmp/maze_q_learning"
+if config.ENABLE_RECORDING:
+    env = Monitor(env, recording_folder, force=True)
 
-focus_train(real_env, sim_expert, real_dagger, real_expert)
+sim_learn.q_table = np.array(sim_expert.q_table, copy=True)
 
 # Begin training the sim learn
-sim_learn.q_table = np.array(sim_expert.q_table, copy=True)
+# config.NUM_EPISODES = 1000
+# config.STREAK_TO_END = 100
+# q_train(real_env, sim_learn)
+
+# Train dagger
+# config.NUM_EPISODES = 100
+# dagger_train(real_env, real_expert, real_dagger, real_expert)
+# evaluate(real_env, real_dagger)
+
+# Focus train
+config.NUM_EPISODES = 50
+config.RECORD_STATS = True
+focus_train(real_env, sim_learn, real_dagger, real_expert)
+
+
+plot_scores()
+

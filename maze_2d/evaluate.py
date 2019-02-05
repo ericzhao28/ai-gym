@@ -38,7 +38,9 @@ def evaluate(env, agent):
                 all_rewards += total_reward
                 break
             elif t >= config.MAX_T - 1:
-                print("Episode timed out at %d with total reward = %f."
-                      % (t, total_reward))
+                # print("Episode timed out at %d with total reward = %f."
+                #       % (t, total_reward))
                 all_rewards += total_reward
+
     print("Total rewards: %d, total timesteps: %d." % (all_rewards, timestep_count))
+    return all_rewards

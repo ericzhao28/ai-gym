@@ -4,15 +4,16 @@ Function for training agent in maze2d.
 
 from .utils import state_to_bucket
 from . import config
+import time
 
-from .evaluate import evaluate
+from .stats import add_env_sample, add_expert_sample, add_score
 
-from scipy.stats import entropy
 
 
 def kl_divergence(env, rl_agent, il_agent, state):
+    # from scipy.stats import entropy
     # return entropy(rl_agent.distribution(state), il_agent.distribution(state)) > 0.5
-    return rl_agent.select_action(state, env) == il_agent.select_action(state, env)
+    return rl_agent.select_action(state, env) != il_agent.select_action(state, env)
 
 
 def expanded_sample(env, rl_agent, il_agent, expert, state):
@@ -20,15 +21,18 @@ def expanded_sample(env, rl_agent, il_agent, expert, state):
     Extended sample by rolling out with expert if
     state has high KL-divergence.
     """
+
+    print("Extended sample!", time.time())
     state_0 = state
     il_agent.reset()
-    rl_agent.reset()
     expert.reset()
 
     for t in range(config.MAX_T):
         # Sample from the environment
         action = expert.select_action(state_0, env)
+        add_expert_sample()
         obv, reward, done, _ = env.step(action)
+        add_env_sample()
 
         # Observe the result
         state = state_to_bucket(obv)
@@ -53,7 +57,6 @@ def expanded_sample(env, rl_agent, il_agent, expert, state):
 def train(env, rl_agent, il_agent, expert):
     """ Train agent. """
     num_streaks = 0
-    timestep_count = 0
 
     for episode in range(config.NUM_EPISODES):
         obv = env.reset()
@@ -64,9 +67,9 @@ def train(env, rl_agent, il_agent, expert):
 
         for t in range(config.MAX_T):
             # Sample from the environment
-            timestep_count += 1
             action = rl_agent.select_action(state_0, env)
             obv, reward, done, _ = env.step(action)
+            add_env_sample()
 
             # Observe the result
             state = state_to_bucket(obv)
@@ -81,28 +84,20 @@ def train(env, rl_agent, il_agent, expert):
             # Setting up for the next iteration
             state_0 = state
 
-            if config.DEBUG_MODE == 1:
-                if done or t >= config.MAX_T - 1:
-                    print("\nEpisode = %d" % episode)
-                    print("t = %d" % t)
-                    print("Total timestep = %d" % timestep_count)
-                    print("Streaks: %d" % num_streaks)
-                    print("Total reward: %f" % total_reward)
-                    print("")
-
             if config.RENDER_MAZE:
                 env.render()
 
             if done:
                 if config.VERBOSE:
                     print("Episode %d finished after %f time steps "
-                          "with total reward = %f (streak %d). Total "
-                          "time steps are %d."
-                          % (episode, t, total_reward, num_streaks,
-                             timestep_count))
+                          "with total reward = %f (streak %d)."
+                          % (episode, t, total_reward, num_streaks))
                 break
 
             elif t >= config.MAX_T - 1:
                 raise ValueError("Episode %d timed out at %d with "
                                  "total reward = %f."
                                  % (episode, t, total_reward))
+
+        if (episode % 5 == 0):
+            add_score(env, rl_agent)
