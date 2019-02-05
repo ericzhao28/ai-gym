@@ -17,7 +17,7 @@ def evaluate(env, agent):
         agent.reset()
 
         state_0 = state_to_bucket(obv)
-        total_reward = 0
+        total_reward = 0.0
 
         for t in range(config.MAX_T):
             timestep_count += 1
@@ -26,7 +26,7 @@ def evaluate(env, agent):
 
             # Observe the result
             state = state_to_bucket(obv)
-            total_reward += reward
+            total_reward += float(reward)
 
             # Setting up for the next iteration
             state_0 = state
@@ -42,5 +42,5 @@ def evaluate(env, agent):
                 #       % (t, total_reward))
                 all_rewards += total_reward
 
-    print("Total rewards: %d, total timesteps: %d." % (all_rewards, timestep_count))
+    print("Total rewards: %f, total timesteps: %d." % (all_rewards, timestep_count))
     return all_rewards

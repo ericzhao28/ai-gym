@@ -31,6 +31,6 @@ def add_score(env, agent):
 def plot_scores():
     global evaluation_scores
     plt.scatter([x[0] for x in evaluation_scores], [x[2] for x in evaluation_scores])
-    plt.ylim(95.0, 100.0)
+    # plt.ylim(95.0, 100.0)
     plt.show()
 

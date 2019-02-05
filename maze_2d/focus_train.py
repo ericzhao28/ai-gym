@@ -78,8 +78,7 @@ def train(env, rl_agent, il_agent, expert):
             # Check if we need to roll-out the rl-agent
             if kl_divergence(env, rl_agent, il_agent, state_0):
                 expanded_sample(env, rl_agent, il_agent, expert, state_0)
-            else:
-                rl_agent.update(reward, state, state_0, action)
+            rl_agent.update(reward, state, state_0, action)
 
             # Setting up for the next iteration
             state_0 = state
@@ -99,4 +98,5 @@ def train(env, rl_agent, il_agent, expert):
                                  "total reward = %f."
                                  % (episode, t, total_reward))
 
-        add_score(env, rl_agent)
+        if episode % 5 == 0:
+            add_score(env, rl_agent)
