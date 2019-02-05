@@ -22,7 +22,7 @@ def expanded_sample(env, rl_agent, il_agent, expert, state):
     state has high KL-divergence.
     """
 
-    print("Extended sample!", time.time())
+    # print("Extended sample!", time.time())
     state_0 = state
     il_agent.reset()
     expert.reset()
@@ -62,7 +62,7 @@ def train(env, rl_agent, il_agent, expert):
         obv = env.reset()
 
         state_0 = state_to_bucket(obv)
-        total_reward = 0
+        total_reward = 0.0
         rl_agent.reset()
 
         for t in range(config.MAX_T):
@@ -99,5 +99,4 @@ def train(env, rl_agent, il_agent, expert):
                                  "total reward = %f."
                                  % (episode, t, total_reward))
 
-        if (episode % 5 == 0):
-            add_score(env, rl_agent)
+        add_score(env, rl_agent)

@@ -9,7 +9,7 @@ from . import config
 def evaluate(env, agent):
     """ Evaluate agent. """
     timestep_count = 0
-    all_rewards = 0
+    all_rewards = 0.0
 
     for position in config.POSSIBLE_POSITIONS:
         obv = env.reset()

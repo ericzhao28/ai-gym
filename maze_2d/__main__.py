@@ -35,10 +35,18 @@ q_train(env, sim_expert)
 evaluate(env, sim_expert)
 sim_expert.save("sim_expert")
 
+# Transfer learning to sim learn
+sim_learn.q_table = np.array(sim_expert.q_table, copy=True)
+
 # Train real expert
 real_env.unwrapped.real_life()
 q_train(real_env, real_expert)
 real_expert.save("real_expert")
+
+# Train dagger
+config.NUM_EPISODES = 100
+dagger_train(real_env, real_expert, real_dagger, real_expert)
+evaluate(real_env, real_dagger)
 
 # Begin recording
 config.RECORD_STATS = True
@@ -49,22 +57,14 @@ recording_folder = "/tmp/maze_q_learning"
 if config.ENABLE_RECORDING:
     env = Monitor(env, recording_folder, force=True)
 
-sim_learn.q_table = np.array(sim_expert.q_table, copy=True)
-
 # Begin training the sim learn
 # config.NUM_EPISODES = 1000
 # config.STREAK_TO_END = 100
 # q_train(real_env, sim_learn)
 
-# Train dagger
-# config.NUM_EPISODES = 100
-# dagger_train(real_env, real_expert, real_dagger, real_expert)
-# evaluate(real_env, real_dagger)
-
 # Focus train
-config.NUM_EPISODES = 50
-config.RECORD_STATS = True
-focus_train(real_env, sim_learn, real_dagger, real_expert)
+config.NUM_EPISODES = 100
+focus_train(real_env, sim_expert, real_dagger, real_expert)
 
 
 plot_scores()

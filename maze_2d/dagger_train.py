@@ -16,7 +16,7 @@ def train(env, roll_in, agent, expert):
         agent.reset()
 
         state_0 = state_to_bucket(obv)
-        total_reward = 0
+        total_reward = 0.0
 
         for t in range(config.MAX_T):
             # Update the Q based on the result

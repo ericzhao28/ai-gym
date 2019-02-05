@@ -16,7 +16,7 @@ def train(env, agent):
         agent.reset()
 
         state_0 = state_to_bucket(obv)
-        total_reward = 0
+        total_reward = 0.0
 
         for t in range(config.MAX_T):
             action = agent.select_action(state_0, env)
