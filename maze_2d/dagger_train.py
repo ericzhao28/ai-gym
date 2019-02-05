@@ -1,17 +1,13 @@
 """
-Function for training agent in maze2d.
+Function for training DAGGER agent in maze2d.
 """
-
-import sys
 
 from .utils import state_to_bucket
 from . import config
 
 
-def train(env, agent):
+def train(env, roll_in, agent, expert):
     """ Train agent. """
-    env.render()
-
     num_streaks = 0
     timestep_count = 0
 
@@ -23,16 +19,18 @@ def train(env, agent):
         total_reward = 0
 
         for t in range(config.MAX_T):
+            # Update the Q based on the result
+            right_action = expert.select_action(state_0, env)
+            agent.aggregate(state_0, right_action)
+
+            # Move onto next step and action
             timestep_count += 1
-            action = agent.select_action(state_0, env)
+            action = roll_in.select_action(state_0, env)
             obv, reward, done, _ = env.step(action)
 
             # Observe the result
             state = state_to_bucket(obv)
             total_reward += reward
-
-            # Update the Q based on the result
-            agent.update(reward, state, state_0, action)
 
             # Setting up for the next iteration
             state_0 = state
@@ -49,14 +47,13 @@ def train(env, agent):
             if config.RENDER_MAZE:
                 env.render()
 
-            if env.unwrapped.is_game_over():
-                sys.exit()
-
             if done:
-                print("Episode %d finished after %f time steps "
-                      "with total reward = %f (streak %d). Total "
-                      "time steps are %d."
-                      % (episode, t, total_reward, num_streaks, timestep_count))
+                if config.VERBOSE:
+                    print("Episode %d finished after %f time steps "
+                          "with total reward = %f (streak %d). Total "
+                          "time steps are %d."
+                          % (episode, t, total_reward, num_streaks,
+                             timestep_count))
                 if t <= config.SOLVED_T:
                     num_streaks += 1
                 else:
@@ -66,6 +63,9 @@ def train(env, agent):
             elif t >= config.MAX_T - 1:
                 print("Episode %d timed out at %d with total reward = %f."
                       % (episode, t, total_reward))
+
+        # Update dagger agent with recently aggregated data.
+        agent.update()
 
         # It's considered done when it's solved over 120 times consecutively
         if num_streaks > config.STREAK_TO_END:
