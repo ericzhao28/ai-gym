@@ -34,6 +34,20 @@ class Agent():
         raise NotImplementedError()
 
 
+class DAgent(Agent):
+    def __init__(self):
+        super().__init__()
+        self.d_table = np.zeros(config.NUM_BUCKETS,
+                                dtype=np.float32)
+
+    def get_score(self, state, env, evaluation=False):
+        return self.d_table[state]
+
+    def update(self, discrepancy, state, old_state):
+        best_q = np.amax(self.d_table[state])
+        self.d_table[old_state] += self.learning_rate * \
+            (discrepancy + config.DISC_DISCOUNT_FACTOR * (self.d_table[state]) - self.d_table[old_state])
+
 class ClassicQAgent(Agent):
     def __init__(self):
         super().__init__()
@@ -67,32 +81,6 @@ class ClassicQAgent(Agent):
 
     def load(self, name):
         self.q_table = np.load(name + ".npy")
-
-
-class NewQAgent(Agent):
-    def select_action(self, state, env, evaluation=False, explore_rate=None):
-        if evaluation:
-            explore_rate = 0
-        elif explore_rate is None:
-            explore_rate = self.explore_rate
-        else:
-            explore_rate = max(explore_rate, self.explore_rate)
-
-        if random.random() < explore_rate:
-            return env.action_space.sample()
-        else:
-            return int(np.argmax(self.q_table[state]))
-
-    def update(self, reward, state, old_state, old_action, learning_rate=None):
-        best_q = np.amax(self.q_table[state])
-
-        if learning_rate is None:
-            learning_rate = self.learning_rate
-        else:
-            learning_rate = max(self.learning_rate, learning_rate)
-
-        self.q_table[old_state + (old_action,)] += learning_rate * \
-            (reward + config.DISCOUNT_FACTOR * (best_q) - self.q_table[old_state + (old_action,)])
 
 
 class ClassicDaggerAgent(Agent):

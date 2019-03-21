@@ -1,9 +1,14 @@
 """
 Function for training agent in maze2d.
 
-Expert-guided Q learning with exploration.
+Pretrain/reward-shape critic.
+Pretrain actor on real expert demonstration bc.
+Let actor unroll.
+Compare against critic.
+At each state:
+  - If critic disagrees, get expert trajectory. Update actor.
+    Update critic.
 """
-
 from .utils import state_to_bucket
 from . import config
 import time

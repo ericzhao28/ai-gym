@@ -62,16 +62,15 @@ if config.ENABLE_RECORDING:
     env = Monitor(env, recording_folder, force=True)
 
 # Begin training the sim learn
-config.NUM_EPISODES = 500
-config.STREAK_TO_END = 100
-config.MIN_EXPLORE_RATE = 0.05
-config.DECAY_FACTOR = config.DECAY_FACTOR * 0.01
-q_train(real_env, greedy_learner)
+# config.NUM_EPISODES = 500
+# config.STREAK_TO_END = 100
+# config.MIN_EXPLORE_RATE = 0.05
+# config.DECAY_FACTOR = config.DECAY_FACTOR * 0.01
+# q_train(real_env, greedy_learner)
 
 # Focus train
-# config.NUM_EPISODES = 200
-# config.DECAY_FACTOR = config.DECAY_FACTOR / 100.0
-# config.MIN_EXPLORE_RATE = 0.01
-# focus_train(real_env, focused_learner, real_dagger, real_expert)
+config.NUM_EPISODES = 200
+# config.MIN_EXPLORE_RATE = 0.1
+focus_train(real_env, focused_learner, real_expert)
 
 plot_scores()
